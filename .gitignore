@@ -1,0 +1,14 @@
+# big generated data (GitHub limit is 100 MB per file)
+data/*.csv
+data/*.parquet
+!data/sample_10k.csv
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv/
+.venv/
+
+# secrets
+.env
