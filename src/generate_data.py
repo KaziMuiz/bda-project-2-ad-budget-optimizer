@@ -147,19 +147,32 @@ def generate(n_rows, seed=42):
     return df
 
 
+CHUNK = 1_000_000   # rows made at a time, so a laptop never runs out of memory
+
+
+def write_csv(n_rows, out, seed=42, chunk=CHUNK):
+    """Generate n_rows in chunks and append each chunk to one CSV file."""
+    done, part = 0, 0
+    while done < n_rows:
+        n = min(chunk, n_rows - done)
+        df = generate(n, seed + part)
+        df.to_csv(out, mode="w" if part == 0 else "a", header=(part == 0), index=False)
+        done += n
+        part += 1
+        print(f"  wrote {done:,} / {n_rows:,} rows")
+
+
 if __name__ == "__main__":
+    import os
+    import time
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--rows", type=int, default=10_000)
     ap.add_argument("--out", default="data/sample_10k.csv")
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
 
-    df = generate(args.rows, args.seed)
-    df.to_csv(args.out, index=False)
-
-    print(f"Saved {len(df):,} rows to {args.out}")
-    print(df.head())
-    g = df.groupby("platform")[["spend", "revenue"]].sum()
-    g["ROAS"] = (g["revenue"] / g["spend"]).round(2)
-    print("\nQuick check - ROAS by platform:")
-    print(g.sort_values("ROAS", ascending=False))
+    start = time.time()
+    write_csv(args.rows, args.out, args.seed)
+    size_mb = os.path.getsize(args.out) / 1024 / 1024
+    print(f"Saved {args.rows:,} rows to {args.out}  ({size_mb:.1f} MB, {time.time() - start:.1f} seconds)")
