@@ -1,0 +1,5 @@
+size,tool,seconds,extra_memory_MB,total_revenue_check
+10K,Spark,0.54,8,85561327.01
+100K,Spark,0.64,18,867164175.44
+1M,Spark,1.09,160,9185272159.7
+10M,Spark,4.43,199,90476782070.48
