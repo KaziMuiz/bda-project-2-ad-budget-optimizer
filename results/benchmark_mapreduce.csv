@@ -1,0 +1,5 @@
+size,tool,seconds,extra_memory_MB,total_revenue_check
+10K,MapReduce,1.34,215,85561327.01
+100K,MapReduce,0.8,277,867164175.44
+1M,MapReduce,1.51,279,9185272159.7
+10M,MapReduce,7.46,278,90476782070.48
