@@ -4,3 +4,4 @@ matplotlib
 scipy
 pyarrow
 psutil
+pyspark
