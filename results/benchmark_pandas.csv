@@ -1,0 +1,9 @@
+size,tool,seconds,extra_memory_MB,total_revenue_check
+10K,Pandas,0.11,4,85561327.01
+10K,Pandas (optimized),0.04,0,85561327.01
+100K,Pandas,0.35,27,867164175.44
+100K,Pandas (optimized),0.2,23,867164175.44
+1M,Pandas,3.18,204,9185272159.7
+1M,Pandas (optimized),1.72,47,9185272159.7
+10M,Pandas,23.19,1927,90476782070.48
+10M,Pandas (optimized),13.87,400,90476782070.48
