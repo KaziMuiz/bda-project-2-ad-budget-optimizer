@@ -1,0 +1,4 @@
+plan,expected_revenue,expected_ROAS
+Equal split,3271605,3.27
+Split by ROAS,3597037,3.6
+Engine (optimized),3933178,3.93
