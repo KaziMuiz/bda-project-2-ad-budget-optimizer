@@ -2,6 +2,8 @@
 
 **Big Data Analytics, Project 2** · Qazi Abdul Muiz (Kazii) · UMT, Lahore
 
+**Live dashboard:** https://kazimuiz.github.io/bda-project-2-ad-budget-optimizer/
+
 > **Management asks: where should we spend the next Rs. 1 million?**
 > This project simulates a year of advertising data for 5 platforms, measures how well each platform performs, compares **Pandas vs MapReduce vs Spark** on data from 10 thousand to 10 million rows, and builds a **Marketing Budget Recommendation Engine** that splits the budget across platforms.
 
@@ -45,6 +47,8 @@ bda-project-2-ad-budget-optimizer/
 │   ├── spark_check.py          # tiny test that Spark is installed correctly
 │   ├── compare.py              # checks all tools agree + comparison charts 06-07
 │   ├── response_curves.py      # diminishing returns per platform (chart 08)
+├── docs/
+│   └── index.html              # the dashboard (open it in a browser)
 │   └── engine.py               # the recommendation engine (chart 09)
 ├── results/                    # all result tables as CSV
 └── charts/                     # all charts as PNG
@@ -280,3 +284,11 @@ The engine gives **+20.2%** revenue compared with an equal split.
 ## 9. Requirements
 
 Python 3.10 or newer (tested on 3.14), the libraries in `requirements.txt`, and Java 17 or 21 only for the Spark benchmark.
+
+## 10. The dashboard
+
+`docs/index.html` is a single-page website that presents the whole project. It has seven pages: Overview, Platforms, Big Data Test, Engine, Limits, Q&A and Ask.
+
+- **Ask** is a small search assistant. It answers from facts stored inside the page (platform details, tools, the engine, the Q&A), so it is not a live AI and needs no internet.
+- To open it on your computer, double-click `docs/index.html`. To see it online, use the live dashboard link at the top of this README.
+- All numbers on the dashboard are copied from the result files in `results/`, so they match the scripts' output. The data is simulated.

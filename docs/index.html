@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Advertising Budget Optimizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--f:"Inter",system-ui,"Segoe UI",sans-serif;--ink:#14213d;--mut:#5d6578;--bg:#f3f0e8;--card:rgba(255,255,255,.9);--line:rgba(20,33,61,.12);--c1:#0f8a6a;--c2:#e0a526;--c3:#b8456b;--m:"IBM Plex Mono",ui-monospace,Consolas,monospace;--grad:linear-gradient(90deg,#0f8a6a,#25b88c)}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:rgba(15,138,106,.15)}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);color:var(--ink);line-height:1.6;background:linear-gradient(rgba(20,33,61,.05) 1px,transparent 1px) 0 0/48px 48px,linear-gradient(90deg,rgba(20,33,61,.05) 1px,transparent 1px) 0 0/48px 48px,var(--bg) fixed}
+#rain{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+nav,main,footer{position:relative;z-index:1}
+nav{position:fixed;top:0;left:0;right:0;height:68px;display:flex;align-items:center;gap:6px;padding:0 5vw;z-index:5;background:rgba(243,240,232,.72);backdrop-filter:blur(12px)}
+nav b{font-weight:800;font-size:1.05rem;letter-spacing:-.02em;margin-right:auto;cursor:pointer;display:flex;align-items:center}
+nav b::before{content:"";width:13px;height:13px;border-radius:4px;background:linear-gradient(135deg,var(--c1),var(--c2));margin-right:10px}
+nav a{color:var(--mut);text-decoration:none;font-size:.85rem;font-weight:600;padding:9px 16px;border-radius:8px;transition:.25s}
+nav a:hover,nav a:active,nav a:focus-visible{background:rgba(15,138,106,.13);color:var(--c1)}
+nav a.on{background:var(--ink);color:#fff}
+nav a.ask{background:var(--grad);color:#fff}
+nav a.ask:hover,nav a.ask:active{filter:brightness(1.08);transform:translateY(-1px);color:#fff}
+main{position:fixed;top:68px;left:0;right:0;bottom:0;counter-reset:sec}
+#app section{position:absolute;inset:0;overflow-y:auto;padding:34px max(5vw,calc((100vw - 1080px)/2)) 100px !important;opacity:0;visibility:hidden;transform:translateY(26px);transition:opacity .6s,transform .8s cubic-bezier(.2,.7,.2,1),visibility 0s .6s;scrollbar-width:thin;scrollbar-color:rgba(26,26,46,.25) transparent}
+#app section.on{opacity:1;visibility:visible;transform:none;transition:opacity .8s .15s,transform .9s .15s cubic-bezier(.2,.7,.2,1),visibility 0s}
+h1{font-weight:800;font-size:clamp(2.4rem,6.4vw,4.8rem);line-height:1.04;letter-spacing:-.04em}
+h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#overview h1{font-size:clamp(2.1rem,4.8vw,3.8rem)}
+h2{font-weight:800;font-size:clamp(1.8rem,3.6vw,2.6rem);letter-spacing:-.03em;line-height:1.1}
+h2::before{counter-increment:sec;content:"0" counter(sec);display:table;font:700 .68rem var(--f);letter-spacing:.12em;color:#fff;background:var(--ink);border-radius:8px;padding:3px 12px;margin-bottom:12px}
+.lead{color:var(--mut);max-width:600px;margin-top:20px;font-size:1.08rem}
+.tag{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border-radius:8px;background:#fff;font-size:.7rem;font-weight:700;letter-spacing:.14em;box-shadow:0 6px 20px rgba(26,26,46,.08)}
+.tag i{width:8px;height:8px;border-radius:50%}
+.sub{color:var(--mut);margin:8px 0 22px}
+.win{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;backdrop-filter:blur(10px);box-shadow:0 1px 0 rgba(20,33,61,.06),0 8px 24px rgba(20,33,61,.06);opacity:0;transform:translateY(22px);transition:opacity .9s,transform .9s,box-shadow .3s}
+section.on .win{opacity:1;transform:none}
+.win:hover{box-shadow:0 16px 44px rgba(15,138,106,.17)}
+.win h3{font:800 .7rem var(--f);letter-spacing:.16em;text-transform:uppercase;color:var(--c1);margin-bottom:18px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.kpi{border-top:4px solid var(--c1)}
+.grid .kpi:nth-child(1){border-color:#2f8f6b}.grid .kpi:nth-child(2){border-color:#3a63c8}.grid .kpi:nth-child(3){border-color:var(--c3)}
+.kpi small{color:var(--mut);font-weight:700;letter-spacing:.12em;font-size:.68rem;text-transform:uppercase}
+.kpi strong{display:block;font-size:2.3rem;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-top:6px}
+.row{display:grid;grid-template-columns:116px 1fr 70px;gap:16px;align-items:center;margin:15px 0;font-size:.92rem;font-weight:600}
+.row span:last-child{text-align:right;font-weight:800}
+.track{height:8px;border-radius:3px;background:rgba(26,26,46,.08);overflow:hidden}
+.fill{height:100%;width:0;border-radius:3px;background:var(--c,var(--grad));transition:width 1.6s cubic-bezier(.2,.7,.2,1) .25s}
+section.on .fill{width:var(--w)}
+#platforms .row:nth-child(2) .fill,#engine .row:nth-child(2) .fill{--c:#2f8f6b}
+#platforms .row:nth-child(3) .fill,#engine .row:nth-child(3) .fill{--c:#3a63c8}
+#platforms .row:nth-child(4) .fill,#engine .row:nth-child(4) .fill{--c:#b8456b}
+#platforms .row:nth-child(5) .fill,#engine .row:nth-child(5) .fill{--c:#2a9aa3}
+#platforms .row:nth-child(6) .fill,#engine .row:nth-child(6) .fill{--c:#c9483f}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem;white-space:nowrap}
+th{font:700 .64rem var(--f);letter-spacing:.14em;color:var(--mut);text-align:right;padding:10px 14px;border-bottom:2px solid var(--line)}
+td{text-align:right;padding:12px 14px;border-bottom:1px solid var(--line);font-weight:500}
+th:first-child,td:first-child{text-align:left;font-weight:700}
+tbody tr:hover{background:rgba(15,138,106,.06)}
+td.best{color:var(--c1);font-weight:800}
+.plan{text-align:center}
+.plan small{color:var(--mut);font-weight:700;letter-spacing:.12em;font-size:.68rem;text-transform:uppercase}
+.plan strong{display:block;font-size:2rem;font-weight:800;letter-spacing:-.03em;margin:4px 0}
+.plan em{font-style:normal;color:var(--mut);font-size:.85rem}
+.top{background:var(--grad);border:0;color:#fff}
+.top small,.top em,.top strong{color:#fff}
+.steps{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));counter-reset:s}
+.steps .win{counter-increment:s}
+.steps .win::after{content:"0" counter(s);position:absolute;right:20px;top:16px;font-weight:800;font-size:1.5rem;color:rgba(15,138,106,.28)}
+.steps p{color:var(--mut);font-size:.92rem}
+ul{padding-left:18px;color:#3a3a50}
+li{margin:9px 0}
+li b{color:var(--ink)}
+.qa details{border-top:1px solid var(--line)}
+.qa summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:20px;padding:15px 12px;margin:0 -12px;border-radius:12px;font-size:1rem;font-weight:600;transition:.25s}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::after{content:"+";font-size:1.4rem;line-height:1;color:var(--c1);transition:transform .3s}
+.qa details[open] summary::after{transform:rotate(45deg)}
+.qa summary:hover,.qa summary:active{background:rgba(15,138,106,.09);color:var(--c1)}
+.qa details p{color:var(--mut);padding:0 40px 18px 0}
+.qa .say{font-size:1.1rem;font-weight:500;color:var(--ink);padding:0}
+footer{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;font-size:.66rem;font-weight:700;letter-spacing:.2em;color:var(--mut);background:linear-gradient(transparent,rgba(243,240,232,.95) 60%);pointer-events:none}
+#pager{display:flex;gap:14px;align-items:center;pointer-events:auto}
+#pager button{width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:1rem;cursor:pointer;transition:.25s}
+#pager button:hover,#pager button:active{background:var(--c1);color:#fff;border-color:var(--c1)}
+button:active{transform:scale(.94)}
+#intro{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 6vw;transition:opacity 1.1s,transform 1.4s,filter 1.1s}
+#intro.gone{opacity:0;transform:scale(1.06);filter:blur(12px);pointer-events:none}
+#intro h1{margin-top:26px;animation:ttl 2.2s cubic-bezier(.2,.7,.2,1) both}
+#intro .lead{margin:24px auto 0;animation:fadein 2s .9s both}
+#go{margin-top:40px;background:var(--ink);color:#fff;border:0;border-radius:8px;padding:17px 44px;font:700 .9rem var(--f);letter-spacing:.06em;cursor:pointer;box-shadow:0 12px 30px rgba(26,26,46,.28);transition:.3s;animation:fadein 2s 1.5s both}
+#go:hover,#go:active{background:var(--grad);transform:translateY(-3px);box-shadow:0 16px 36px rgba(15,138,106,.4)}
+#intro small{margin-top:18px;color:var(--mut);font-size:.72rem;font-weight:600;animation:fadein 2s 2s both}
+@keyframes fadein{from{opacity:0}}
+@keyframes ttl{from{opacity:0;transform:translateY(24px);filter:blur(8px)}}
+#app{position:relative;z-index:1;opacity:0;transform:translateY(40px);transition:opacity 1.2s .4s,transform 1.2s .4s}
+#app.show{opacity:1;transform:none}
+.chatbox{display:flex;flex-direction:column;height:min(64vh,580px);padding:0;overflow:hidden}
+#msgs{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
+#hero{margin:auto;text-align:center}
+#msgs.has #hero{display:none}
+#heyt{display:block;font-size:2.3rem;font-weight:800;letter-spacing:-.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;transform:translateY(8px);transition:opacity .7s,transform .7s}
+#heyt.in{opacity:1;transform:none}
+.m{max-width:94%;font-size:.9rem;line-height:1.55;animation:fadein .5s both}
+.m.u{align-self:flex-end;background:var(--ink);color:#fff;padding:10px 16px;border-radius:18px 18px 4px 18px}
+.m.b{background:#fff;border:1px solid var(--line);padding:14px 18px;border-radius:18px 18px 18px 4px;box-shadow:0 4px 16px rgba(26,26,46,.06)}
+.m h4{font-weight:800;font-size:1.05rem;margin-bottom:4px}
+.m h5{font:800 .62rem var(--f);letter-spacing:.16em;text-transform:uppercase;color:var(--c1);margin:14px 0 6px}
+.m p{margin:5px 0;color:#3a3a50}.m ol,.m ul{padding-left:18px;margin:6px 0}.m b{color:var(--ink)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.kv div{background:#eef3ee;border-radius:10px;padding:7px 11px}
+.kv dt{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.kv dd{margin:0;font-weight:700}
+.mini{width:100%;font-size:.78rem;border-collapse:collapse;margin-top:8px}
+.mini th,.mini td{padding:6px;border-bottom:1px solid var(--line);text-align:right;font-size:.78rem;letter-spacing:0;font-weight:500}
+.mini th:first-child,.mini td:first-child{text-align:left}
+.rel,#chips{display:flex;flex-wrap:wrap;gap:6px}
+.rel{margin-top:12px}
+#chips{padding:0 22px 14px;justify-content:center}
+.chip,.rel button{background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 14px;font:600 .78rem var(--f);cursor:pointer;transition:.25s}
+.chip:hover,.chip:active,.rel button:hover,.rel button:active{background:var(--c1);color:#fff;border-color:var(--c1)}
+#cf{display:flex;gap:8px;padding:14px;border-top:1px solid var(--line);background:rgba(255,255,255,.7)}
+#ci{flex:1;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:13px 20px;font:500 .95rem var(--f);color:var(--ink);outline:none;transition:.3s}
+#ci::placeholder{color:#9a9aae}
+#ci:focus{border-color:var(--c1);box-shadow:0 0 0 4px rgba(15,138,106,.14)}
+#ci:disabled{opacity:.55}
+#cf button{width:48px;border-radius:10px;border:0;background:var(--ink);color:#fff;font-size:1.1rem;cursor:pointer;transition:.25s}
+#cf button:hover,#cf button:active{background:var(--c1)}
+.dots i{display:inline-block;width:6px;height:6px;margin-right:4px;border-radius:50%;background:var(--c1);animation:bl 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bl{50%{opacity:.25;transform:translateY(-3px)}}
+@media(max-width:900px){nav{height:auto;padding:10px 4vw;flex-wrap:wrap}nav b{width:100%}main{top:104px}footer span{display:none}}
+.win::before{content:"";position:absolute;left:24px;top:0;width:34px;height:3px;background:var(--c1)}
+.kpi strong,.plan strong,.row span:last-child,td,.kv dd,.mini td,#pg,h2::before,.tag,th{font-family:var(--m)}
+td:first-child,.mini td:first-child{font-family:var(--f)}
+.kpi strong{font-weight:600;letter-spacing:-.04em}
+h1,h2{font-weight:700}
+h1{letter-spacing:-.045em}
+.top{background:var(--c1)}
+</style>
+</head>
+<body class="lock">
+<canvas id="rain"></canvas>
+<div id="intro">
+  <span class="tag"><i style="background:#2f8f6b"></i><i style="background:#3a63c8"></i><i style="background:#b8456b"></i><i style="background:#2a9aa3"></i><i style="background:#c9483f"></i>BIG DATA ANALYTICS · PROJECT 2</span>
+  <h1>Digital Advertising<br><em>Budget Optimizer</em></h1>
+  <p class="lead">Where should we spend the next Rs. 1 million?</p>
+  <button id="go">Start</button>
+  <small>or press Enter, or scroll</small>
+</div>
+<div id="app">
+<nav><b>Budget Optimizer</b><a href="#overview">Overview</a><a href="#platforms">Platforms</a><a href="#bigdata">Big Data Test</a><a href="#engine">Engine</a><a href="#limits">Limits</a><a href="#qa">Q&amp;A</a><a href="#ask" class="ask">✦ Ask</a></nav>
+<main>
+
+<section id="overview" style="padding-top:110px">
+  <span class="tag">BIG DATA ANALYTICS · PROJECT 2</span>
+  <h1 style="margin-top:26px">Digital Advertising<br><em>Budget Optimizer</em></h1>
+  <p class="lead">Management asks: <b style="color:#fff">where should we spend the next Rs. 1 million?</b> This dashboard shows how the project answers it, from simulated ad data to a recommended budget split.</p>
+  <div class="grid" style="margin-top:34px">
+    <div class="win kpi"><small>Records</small><strong>10,000</strong></div>
+    <div class="win kpi"><small>Total spend</small><strong>Rs. 31.6M</strong></div>
+    <div class="win kpi"><small>Total revenue</small><strong>Rs. 85.6M</strong></div>
+    <div class="win kpi"><small>Overall ROAS</small><strong>2.71</strong></div>
+  </div>
+  <div class="steps" style="margin-top:16px">
+    <div class="win"><h3>SIMULATE</h3><p>A year of ad data for 5 platforms, 12 columns, with Eid and sale seasons.</p></div>
+    <div class="win"><h3>MEASURE</h3><p>CTR, CPC, CPA, conversion rate and ROAS for every platform and campaign.</p></div>
+    <div class="win"><h3>SCALE</h3><p>10 thousand up to 10 million rows, run with Pandas, MapReduce and Spark.</p></div>
+    <div class="win"><h3>RECOMMEND</h3><p>An engine that splits the budget and is tested on months it has not seen.</p></div>
+  </div>
+</section>
+
+<section id="platforms">
+  <h2>Platform Performance</h2>
+  <p class="sub">Which platform earns the most for every Rs. 1 spent?</p>
+  <div class="win"><h3>Roas by platform</h3>
+    <div class="row"><span>Google</span><div class="track"><div class="fill" style="--w:100%"></div></div><span>4.03</span></div>
+    <div class="row"><span>Facebook</span><div class="track"><div class="fill" style="--w:69.5%"></div></div><span>2.80</span></div>
+    <div class="row"><span>Instagram</span><div class="track"><div class="fill" style="--w:60%"></div></div><span>2.42</span></div>
+    <div class="row"><span>TikTok</span><div class="track"><div class="fill" style="--w:41.7%"></div></div><span>1.68</span></div>
+    <div class="row"><span>YouTube</span><div class="track"><div class="fill" style="--w:40.2%"></div></div><span>1.62</span></div>
+  </div>
+  <div class="win" style="margin-top:16px"><h3>Full metrics</h3>
+  <div class="wrap"><table>
+    <thead><tr><th>PLATFORM</th><th>SPEND (RS.)</th><th>REVENUE (RS.)</th><th>CTR %</th><th>CPC</th><th>CPA</th><th>CONV. %</th><th>ROAS</th></tr></thead>
+    <tbody>
+      <tr><td>Google</td><td>8,326,378</td><td>33,548,185</td><td>3.46</td><td>25.57</td><td>1,495</td><td>1.71</td><td class="best">4.03</td></tr>
+      <tr><td>Facebook</td><td>7,311,659</td><td>20,442,467</td><td>1.20</td><td>20.74</td><td>1,750</td><td>1.18</td><td>2.80</td></tr>
+      <tr><td>Instagram</td><td>6,793,257</td><td>16,430,279</td><td>1.14</td><td>27.76</td><td>2,153</td><td>1.29</td><td>2.42</td></tr>
+      <tr><td>TikTok</td><td>5,229,303</td><td>8,806,166</td><td>1.78</td><td>8.34</td><td>2,130</td><td>0.39</td><td>1.68</td></tr>
+      <tr><td>YouTube</td><td>3,903,647</td><td>6,334,231</td><td>0.66</td><td>30.03</td><td>3,113</td><td>0.96</td><td>1.62</td></tr>
+    </tbody></table></div>
+  <p class="sub" style="margin:12px 0 0">TikTok has the cheapest clicks (Rs. 8) but only 0.39% of clickers buy. Clicks are not sales.</p>
+  </div>
+</section>
+
+<section id="bigdata">
+  <h2>Big Data Test</h2>
+  <p class="sub">The same job on four tools. All tools found the same total revenue at every size.</p>
+  <div class="win"><h3>Time on 10 million rows</h3>
+    <div class="row"><span>Pandas</span><div class="track"><div class="fill" style="--w:100%"></div></div><span>23.2s</span></div>
+    <div class="row"><span>Pandas opt.</span><div class="track"><div class="fill" style="--w:59.8%"></div></div><span>13.9s</span></div>
+    <div class="row"><span>MapReduce</span><div class="track"><div class="fill" style="--w:32.2%"></div></div><span>7.5s</span></div>
+    <div class="row"><span>Spark</span><div class="track"><div class="fill" style="--w:19.1%"></div></div><span>4.4s</span></div>
+  </div>
+  <div class="win" style="margin-top:16px"><h3>Seconds by data size</h3>
+  <div class="wrap"><table>
+    <thead><tr><th>TOOL</th><th>10K</th><th>100K</th><th>1M</th><th>10M</th></tr></thead>
+    <tbody>
+      <tr><td>Pandas</td><td>0.11</td><td>0.35</td><td>3.18</td><td>23.19</td></tr>
+      <tr><td>Pandas (optimized)</td><td class="best">0.04</td><td class="best">0.20</td><td>1.72</td><td>13.87</td></tr>
+      <tr><td>MapReduce</td><td>1.34</td><td>0.80</td><td>1.51</td><td>7.46</td></tr>
+      <tr><td>Spark</td><td>0.54</td><td>0.64</td><td class="best">1.09</td><td class="best">4.43</td></tr>
+    </tbody></table></div>
+  <p class="sub" style="margin:12px 0 0">Pandas wins on small data. From about 1 million rows, Spark leads, because it uses all CPU cores.</p>
+  </div>
+</section>
+
+<section id="engine">
+  <h2>Recommendation Engine</h2>
+  <p class="sub">The best split of Rs. 1,000,000 for one month. Every platform gets between 5% and 50%.</p>
+  <div class="win"><h3>Budget allocation</h3>
+    <div class="row"><span>Google</span><div class="track"><div class="fill" style="--w:100%"></div></div><span>50.0%</span></div>
+    <div class="row"><span>Facebook</span><div class="track"><div class="fill" style="--w:57.2%"></div></div><span>28.6%</span></div>
+    <div class="row"><span>Instagram</span><div class="track"><div class="fill" style="--w:22.8%"></div></div><span>11.4%</span></div>
+    <div class="row"><span>TikTok</span><div class="track"><div class="fill" style="--w:10%"></div></div><span>5.0%</span></div>
+    <div class="row"><span>YouTube</span><div class="track"><div class="fill" style="--w:10%"></div></div><span>5.0%</span></div>
+  </div>
+  <div class="grid" style="margin-top:16px">
+    <div class="win plan"><small>Equal split</small><strong>Rs. 3.27M</strong><em>expected revenue</em></div>
+    <div class="win plan"><small>Split by ROAS</small><strong>Rs. 3.60M</strong><em>expected revenue</em></div>
+    <div class="win plan top"><small>Engine</small><strong>Rs. 3.93M</strong><em>+20.2% vs equal split</em></div>
+  </div>
+  <div class="win" style="margin-top:16px"><h3>Why this split</h3>
+    <ul>
+      <li><b>Diminishing returns:</b> the more you spend on one platform, the less each extra rupee earns. Google saturates fastest.</li>
+      <li><b>Google is held at 50%.</b> Its next rupee still earns the most (Rs. 3.44), so without the limit it would get more.</li>
+      <li><b>Facebook and Instagram</b> earn the same Rs. 2.83 from the next rupee, a sign of a balanced split.</li>
+      <li><b>Tested on unseen months:</b> learned from January to August, predicted September to December within 0.5% to 12.7%.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limits</h2>
+  <div class="win" style="margin-top:12px"><h3>Read this first</h3>
+    <ul>
+      <li><b>All data is simulated.</b> The results show how the method works, not how real companies perform.</li>
+      <li><b>The engine is judged by its own model.</b> The unseen-months test shows the model is reasonable, but it is not a guarantee.</li>
+      <li><b>One laptop, one run per test.</b> MapReduce is a Python implementation, not Hadoop, and Spark ran in local mode.</li>
+    </ul>
+  </div>
+</section>
+
+
+<section id="qa" class="qa">
+  <h2>Questions &amp; Answers</h2>
+  <p class="sub">The questions this project is most likely to raise, in plain words.</p>
+  <div class="win"><h3>Explain it in 30 seconds</h3>
+    <p class="say">“My project answers one question: where should a company spend its next Rs. 1 million across Facebook, Instagram, Google, TikTok and YouTube. I simulated a year of ad data, calculated the marketing metrics, and compared Pandas, MapReduce and Spark on 10 thousand up to 10 million rows. Finally I built a recommendation engine that splits the budget, and I tested it on months it had not seen.”</p>
+  </div>
+  <div class="win" style="margin-top:16px"><h3>The project</h3><details><summary>What does one row of your data mean?</summary><p>One ad set: one campaign, on one day, for one audience segment (age, gender, city and device).</p></details><details><summary>Why did you simulate the data?</summary><p>There is no real company data, the handout asks for a simulation, and it lets us scale up to 10 million rows. The data is clearly marked as simulated, so the results show how the method works, not how real companies perform.</p></details><details><summary>How is the simulation realistic?</summary><p>Each platform has its own cost, click rate, buy rate and order value. Ages, cities and devices behave differently, and seasons like Ramadan, Eid, 11.11 and Black Friday raise spending and buying.</p></details><details><summary>What is different about your project?</summary><p>An optimized Pandas version to show what is really slow, memory measured as well as time, a city-by-platform heatmap, an engine that handles diminishing returns, a test on unseen months, and two simple plans to compare against.</p></details></div><div class="win" style="margin-top:16px"><h3>Metrics</h3><details><summary>What are CTR, CPC, CPA, conversion rate and ROAS?</summary><p>CTR is the share of viewers who click. CPC is the cost of one click. CPA is the cost of one customer. Conversion rate is the share of clickers who buy. ROAS is the revenue earned per Rs. 1 of ads.</p></details><details><summary>Why do you add up first and then divide?</summary><p>Averaging row-level ratios gives a row with 100 views the same weight as a row with 100,000. Dividing the totals is correct.</p></details><details><summary>Which platform is best?</summary><p>Google has the best ROAS (4.03). TikTok has the cheapest clicks (Rs. 8), but only 0.39% of clickers buy, so its ROAS is low. Clicks are not sales.</p></details></div><div class="win" style="margin-top:16px"><h3>Big data test</h3><details><summary>What did you find?</summary><p>Pandas is fastest up to about 100K rows. From about 1 million rows, Spark and MapReduce win. At 10 million rows Spark took 4.43 s and plain Pandas 23.19 s, about 5 times slower.</p></details><details><summary>Why is Pandas faster on small data?</summary><p>Spark and MapReduce have a startup cost. The Spark engine took about 31 s to start and used about 450 MB before reading any data, and MapReduce needs about a second to start its workers.</p></details><details><summary>Explain MapReduce in simple words.</summary><p>Cut the file into pieces. Each worker counts its own piece (map), results with the same platform are collected together (shuffle), and one step adds them up (reduce). It is like several people counting ballot boxes and one person adding the totals.</p></details><details><summary>Is it real Hadoop, and is Spark on a cluster?</summary><p>No to both. Real Hadoop needs Java and a cluster setup, so the MapReduce method is written in Python on all CPU cores. Spark runs in local mode, where the cores of one laptop act as the workers.</p></details><details><summary>How do you know all tools give the right answer?</summary><p>A comparison script checks that the total revenue is the same for every tool at every size, and it prints “ALL TOOLS AGREE”.</p></details></div><div class="win" style="margin-top:16px"><h3>Recommendation engine</h3><details><summary>How does the engine decide the split?</summary><p>It learns how revenue grows with spend on each platform, then searches all splits for the one with the highest expected revenue. At the best split, the next rupee earns about the same on every platform.</p></details><details><summary>What are diminishing returns?</summary><p>The first rupees on a platform earn more than later ones. We measure this with the curve revenue = a × spend^β. A lower β means the platform saturates faster, and Google has the lowest (0.72).</p></details><details><summary>Why not put everything into Google?</summary><p>Each extra rupee in Google earns less than the one before. At 50% of the budget its next rupee earns Rs. 3.44, and more money would lower that. The 5% minimum and 50% maximum are business rules we chose, and other limits would give another split.</p></details><details><summary>How reliable are the curves?</summary><p>They were learned from January to August and used to predict September to December, which the engine had never seen. The errors were between 0.5% and 12.7%, and the largest was YouTube, which has the fewest rows.</p></details><details><summary>Is the +20.2% revenue real?</summary><p>It is the model’s own prediction on simulated data. The engine wins by design under its own model, so it is not a guarantee. The unseen-months test is what shows the model is reasonable.</p></details><details><summary>What would you do with real data?</summary><p>Replace the CSV with the company’s export. The scripts stay the same, and the curves and the unseen-months check are repeated on the real numbers.</p></details></div>
+</section>
+
+<section id="ask">
+  <h2>Ask the project</h2>
+  <p class="sub">Search any platform, tool or topic and get every detail.</p>
+  <div class="win chatbox">
+    <div id="msgs"><div id="hero"><span id="heyt"></span></div></div>
+    <div id="chips"></div>
+    <form id="cf"><input id="ci" autocomplete="off" disabled><button type="submit" aria-label="Send">→</button></form>
+  </div>
+</section>
+</main>
+<footer><span>ALL DATA SIMULATED · BIG DATA ANALYTICS PROJECT 2 · QAZI ABDUL MUIZ</span><div id="pager"><button id="prev" aria-label="Previous page">←</button><span id="pg">01 / 07</span><button id="next" aria-label="Next page">→</button></div></footer>
+</div>
+<script>
+
+(function(){
+const c=document.getElementById('rain'),x=c.getContext('2d');
+const COL=['#2f8f6b','#3a63c8','#b8456b','#2a9aa3','#c9483f'],AMP=[.1,.075,.06,.04,.03],BASE=[.36,.52,.64,.75,.85];
+let W,H;
+function size(){W=c.width=innerWidth;H=c.height=innerHeight}
+addEventListener('resize',size);size();
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function y(k,px,t){const u=px/W*5+t*.06*(1+k*.15)+k*7;return H*BASE[k]-H*AMP[k]*(Math.sin(u)+.55*Math.sin(u*2.3+k)+.3*Math.sin(u*4.1+t*.2))-px/W*H*.08*(1+(4-k)*.05)}
+function f(ms){const t=ms/1000;x.clearRect(0,0,W,H);
+for(let k=0;k<5;k++){
+x.beginPath();for(let px=0;px<=W;px+=8){const yy=y(k,px,t);px?x.lineTo(px,yy):x.moveTo(px,yy)}
+x.strokeStyle=COL[k];x.globalAlpha=.45;x.lineWidth=1.6;x.stroke();
+x.lineTo(W,H);x.lineTo(0,H);x.closePath();
+const g=x.createLinearGradient(0,H*(BASE[k]-.15),0,H);g.addColorStop(0,COL[k]+'22');g.addColorStop(1,COL[k]+'00');
+x.globalAlpha=1;x.fillStyle=g;x.fill();
+x.globalAlpha=.85;x.fillStyle=COL[k];x.beginPath();x.arc(W-60,y(k,W-60,t),3.5,0,6.283);x.fill();x.globalAlpha=1}
+if(!still)requestAnimationFrame(f)}
+requestAnimationFrame(f);
+})();
+const intro=document.getElementById('intro'),app=document.getElementById('app'),locked=()=>document.body.classList.contains('lock');
+const pages=[...document.querySelectorAll('main section')],links=[...document.querySelectorAll('nav a')];let cur=0;
+function show(i){cur=(i+pages.length)%pages.length;pages.forEach((p,k)=>{p.classList.toggle('on',k===cur);if(k===cur){p.scrollTop=0;p.querySelectorAll('.win').forEach((w,j)=>w.style.transitionDelay=(.25+j*.1)+'s')}});links.forEach((a,k)=>a.classList.toggle('on',k===cur));document.getElementById('pg').textContent='0'+(cur+1)+' / 0'+pages.length;if(pages[cur].id==='ask')startChat()}
+function enter(){intro.classList.add('gone');app.classList.add('show');document.body.classList.remove('lock');show(0)}
+function back(){intro.classList.remove('gone');app.classList.remove('show');document.body.classList.add('lock');pages.forEach(p=>p.classList.remove('on'))}
+links.forEach((a,k)=>a.onclick=e=>{e.preventDefault();show(k)});
+document.getElementById('prev').onclick=()=>show(cur-1);document.getElementById('next').onclick=()=>show(cur+1);
+document.getElementById('go').onclick=enter;document.querySelector('nav b').onclick=back;
+addEventListener('keydown',e=>{if(e.target.id==='ci')return;if(locked()){if(e.key==='Enter')enter()}else{if(e.key==='ArrowRight')show(cur+1);if(e.key==='ArrowLeft')show(cur-1)}});
+addEventListener('wheel',e=>{if(locked()&&e.deltaY>0)enter()},{passive:true});
+let ty=0;addEventListener('touchstart',e=>{ty=e.touches[0].clientY},{passive:true});
+addEventListener('touchmove',e=>{if(locked()&&ty-e.touches[0].clientY>30)enter()},{passive:true});
+
+/* ---------- assistant ---------- */
+const P={
+Google:{n:"Best ROAS of all five, and the first to saturate. The engine holds it at the 50% limit.",sp:"8,326,378",rv:"33,548,185",ro:"4.03",ct:"3.46",cc:"25.57",ca:"1,495",cv:"1.71",sh:"50.0",bu:"500,000",mg:"3.44",ps:"2,304",be:"0.719",pl:"0.70",er:"-5.0%",cm:"900",sc:"3.0%",sv:"1.8%",ao:"5,500"},
+Facebook:{n:"A solid all-rounder. It shares the balanced Rs. 2.83 next-rupee return with Instagram.",sp:"7,311,659",rv:"20,442,467",ro:"2.80",ct:"1.20",cc:"20.74",ca:"1,750",cv:"1.18",sh:"28.6",bu:"285,512",mg:"2.83",ps:"1,475",be:"0.859",pl:"0.85",er:"-8.1%",cm:"250",sc:"1.1%",sv:"1.2%",ao:"4,500"},
+Instagram:{n:"Good buying rate, but it saturates faster than Facebook, so it gets a smaller share.",sp:"6,793,257",rv:"16,430,279",ro:"2.42",ct:"1.14",cc:"27.76",ca:"2,153",cv:"1.29",sh:"11.4",bu:"114,488",mg:"2.83",ps:"625",be:"0.812",pl:"0.80",er:"-3.5%",cm:"320",sc:"1.0%",sv:"1.4%",ao:"5,200"},
+TikTok:{n:"Cheapest clicks (Rs. 8) but only 0.39% of clickers buy. It stays at the 5% minimum.",sp:"5,229,303",rv:"8,806,166",ro:"1.68",ct:"1.78",cc:"8.34",ca:"2,130",cv:"0.39",sh:"5.0",bu:"50,000",mg:"1.86",ps:"366",be:"0.917",pl:"0.92",er:"+0.5%",cm:"150",sc:"1.6%",sv:"0.4%",ao:"3,800"},
+YouTube:{n:"Lowest ROAS, fewest rows and the least stable estimate. It stays at the 5% minimum.",sp:"3,903,647",rv:"6,334,231",ro:"1.62",ct:"0.66",cc:"30.03",ca:"3,113",cv:"0.96",sh:"5.0",bu:"50,000",mg:"1.84",ps:"486",be:"0.885",pl:"0.88",er:"+12.7%",cm:"200",sc:"0.6%",sv:"1.0%",ao:"5,000"}};
+const kv=a=>`<dl class="kv">${a.map(([x,y])=>`<div><dt>${x}</dt><dd>${y}</dd></div>`).join("")}</dl>`;
+const tb=(h,r)=>`<table class="mini"><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${r.map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join("")}</tr>`).join("")}</table>`;
+const plat=n=>{const p=P[n];return `<h4>${n}</h4><p>${p.n}</p><h5>Results, 10,000 records</h5>${kv([["Spend","Rs. "+p.sp],["Revenue","Rs. "+p.rv],["ROAS",p.ro],["CTR",p.ct+"%"],["CPC","Rs. "+p.cc],["CPA","Rs. "+p.ca],["Conversion rate",p.cv+"%"]])}<h5>Engine plan for Rs. 1 million</h5>${kv([["Share",p.sh+"%"],["Budget","Rs. "+p.bu],["Next Rs. 1 earns","Rs. "+p.mg],["Per ad set","Rs. "+p.ps]])}<h5>Curve and model check</h5>${kv([["Estimated β",p.be],["Planted β",p.pl],["Sep–Dec error",p.er]])}<h5>Simulation settings</h5>${kv([["Cost per 1,000 views","Rs. "+p.cm],["Click rate",p.sc],["Buy rate",p.sv],["Average order","Rs. "+p.ao]])}`};
+const hd=["Size","10K","100K","1M","10M"];
+const KB=[
+{t:"About the project",k:"project overview purpose goal aim objective summary trying idea",h:`<h4>Digital Advertising Budget Optimizer</h4><p>Big Data Analytics, Project 2. It tries to answer one question for a company advertising on five platforms: <b>where should the next Rs. 1 million be spent?</b></p><p>It simulates a year of ad data, measures every platform, tests Pandas, MapReduce and Spark on up to 10 million rows, and builds an engine that splits the budget and is tested on months it has not seen.</p><p>All data is simulated, so the results show how the method works, not how real companies perform.</p>`},
+{t:"How it works",k:"how work step stage process pipeline method flow",h:`<h4>How it works</h4><ol><li><b>Simulate</b> a year of ad data for 5 platforms.</li><li><b>Measure</b> CTR, CPC, CPA, conversion rate and ROAS.</li><li><b>Scale</b> to 10 million rows and compare three tools.</li><li><b>Recommend</b> a budget split and test it on unseen months.</li></ol>`},
+{t:"The data",k:"data dataset column dictionary simulate simulated record row season eid ramadan fake generate",h:`<h4>The data</h4>${kv([["Records","10,000"],["Columns","12"],["One row","One ad set"],["Year","2025"]])}<p>Columns: date, campaign, platform, impressions, clicks, spend, conversions, revenue, age, gender, city, device.</p><p>Each platform has its own cost, click rate, buy rate and order value. Ramadan, Eid, Independence Day, 11.11, Black Friday and 12.12 raise spending and buying.</p>`},
+{t:"Metrics",k:"metric ctr cpc cpa roas conversion rate formula definition meaning click cost",h:`<h4>The metrics</h4><ul><li><b>CTR</b>: clicks ÷ impressions</li><li><b>CPC</b>: spend ÷ clicks</li><li><b>CPA</b>: spend ÷ conversions</li><li><b>Conversion rate</b>: conversions ÷ clicks</li><li><b>ROAS</b>: revenue ÷ spend, the Rs. earned per Rs. 1 of ads</li></ul><p>Totals are added first and then divided, never averaged row by row.</p>`},
+{t:"Overall results",k:"result overall total kpi spend revenue number performance",h:`<h4>Overall results</h4>${kv([["Total spend","Rs. 31.6M"],["Total revenue","Rs. 85.6M"],["Overall ROAS","2.71"],["Best platform","Google, 4.03"],["Lowest platform","YouTube, 1.62"],["Records","10,000"]])}`},
+{t:"All platforms",k:"platform compare ranking best worst",h:`<h4>All platforms</h4>${tb(["Platform","ROAS","Share"],Object.entries(P).map(([n,p])=>[n,p.ro,p.sh+"%"]))}<p>Search a platform name for every detail.</p>`},
+...Object.keys(P).map(n=>({t:n,k:n.toLowerCase()+(n=="Facebook"?" fb":n=="Instagram"?" insta ig":n=="YouTube"?" yt":""),h:plat(n)})),
+{t:"Pandas",k:"pandas optimized plain dataframe",h:`<h4>Pandas</h4><p>The standard tool. Fastest on small data, but its memory grows with the file.</p>${tb(hd,[["Plain s","0.11","0.35","3.18","23.19"],["Optimized s","0.04","0.20","1.72","13.87"],["Plain MB","4","27","204","1,927"],["Optimized MB","0","23","47","400"]])}<p>Reading only the 6 needed columns made it about 1.7 times faster and used almost 5 times less memory at 10M rows.</p>`},
+{t:"MapReduce",k:"mapreduce map reduce shuffle hadoop",h:`<h4>MapReduce</h4><p>The file is split into pieces, each worker maps its piece, results are shuffled by platform, and a reducer adds them up. It is a Python implementation on all CPU cores, not Hadoop.</p>${tb(hd,[["Seconds","1.34","0.80","1.51","7.46"],["Memory MB","215","277","279","278"]])}<p>Memory stays flat because each worker reads its piece line by line.</p>`},
+{t:"Spark",k:"spark pyspark java",h:`<h4>Spark</h4><p>PySpark 4 in local mode, where the cores of one laptop act as the workers. Starting the engine took about 31 s and 450 MB, which is not counted below.</p>${tb(hd,[["Seconds","0.54","0.64","1.09","4.43"],["Memory MB","8","18","160","199"]])}<p>Fastest from 1 million rows, about 5 times faster than plain Pandas at 10M.</p>`},
+{t:"Tool comparison",k:"tool compare comparison fastest fast slow benchmark speed time memory faster winner bigdata test",h:`<h4>Pandas vs MapReduce vs Spark</h4>${tb(hd,[["Pandas","0.11","0.35","3.18","23.19"],["Pandas opt.","0.04","0.20","1.72","13.87"],["MapReduce","1.34","0.80","1.51","7.46"],["Spark","0.54","0.64","1.09","4.43"]])}<p>Pandas wins up to 100K rows. From about 1 million rows Spark leads. All tools found the same total revenue at every size.</p>`},
+{t:"Recommendation",k:"engine recommend recommended recommendation split budget allocation distribute invest million next",h:`<h4>Recommended split of Rs. 1,000,000</h4>${tb(["Platform","Equal","By ROAS","Engine"],[["Google","20%","32.1%","<b>50.0%</b>"],["Facebook","20%","22.3%","<b>28.6%</b>"],["Instagram","20%","19.3%","<b>11.4%</b>"],["TikTok","20%","13.4%","<b>5.0%</b>"],["YouTube","20%","12.9%","<b>5.0%</b>"]])}<p>Expected revenue: equal Rs. 3.27M, by ROAS Rs. 3.60M, <b>engine Rs. 3.93M (+20.2%)</b>. Every platform gets between 5% and 50%.</p>`},
+{t:"Diminishing returns",k:"diminishing return curve beta saturate saturation response",h:`<h4>Diminishing returns</h4><p>Revenue = a × spend^β. A lower β means the platform saturates faster.</p>${tb(["Platform","Estimated","Planted"],Object.entries(P).map(([n,p])=>[n,p.be,p.pl]))}`},
+{t:"Model check",k:"model check accurate accuracy reliable predict unseen error validation backtest",h:`<h4>Model check</h4><p>Learned from January to August, then predicted September to December.</p>${tb(["Platform","Error"],Object.entries(P).map(([n,p])=>[n,p.er]))}<p>YouTube is the weakest because it has the fewest rows.</p>`},
+{t:"Limitations",k:"limit limitation weakness assumption problem caveat real honest",h:`<h4>Limitations</h4><ul><li>All data is simulated.</li><li>The engine is judged by its own model.</li><li>One laptop, one run per test.</li><li>MapReduce is not Hadoop, and Spark ran in local mode.</li><li>The 5% and 50% limits are our own business rules.</li></ul>`},
+{t:"Cities",k:"city cities islamabad lahore karachi heatmap quetta peshawar multan faisalabad rawalpindi",h:`<h4>Cities</h4><p>Google works best in every city. Islamabad is the strongest city and Quetta is among the weakest. The heatmap is in the charts folder (05_city_platform_heatmap.png).</p>`},
+{t:"Files",k:"file folder code repo github structure run script",h:`<h4>Project files</h4><p>src: generate_data, metrics, charts, bench_pandas, bench_mapreduce, bench_spark, compare, response_curves, engine. Also results, charts and data folders, plus the README.</p>`},
+{t:"Author",k:"who made author built creator student name umt",h:`<h4>Author</h4><p>Built by Qazi Abdul Muiz (Kazi), BS Artificial Intelligence at UMT, for the Big Data Analytics course.</p>`},
+{t:"Hello",k:"hi hello hey salam",h:`<p>Hey KAZI. Ask me about the project, a platform like Google or TikTok, the tools, or the recommendation.</p>`}];
+document.querySelectorAll(".qa details").forEach(d=>{const q=d.querySelector("summary").textContent;KB.push({t:q,k:q,qa:1,h:`<h4>${q}</h4><p>${d.querySelector("p").textContent}</p>`})});
+const STOP=new Set("the a an is are of to what how why do does did you your it in and on for me tell about show give details detail info all can i this that with we us my our please want know".split(" "));
+const tok=x=>x.toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w&&!STOP.has(w)).map(w=>w.replace(/s$/,""));
+KB.forEach(e=>e.s=new Set(tok(e.k)));
+function find(q){const t=tok(q);const sc=KB.map(e=>({e,v:t.filter(w=>e.s.has(w)).length*(e.qa?2.5:3)-e.s.size*.01})).filter(x=>x.v>=2.4).sort((a,b)=>b.v-a.v);return sc.map(x=>x.e)}
+const msgs=document.getElementById("msgs"),chips=document.getElementById("chips"),ci=document.getElementById("ci"),heyt=document.getElementById("heyt");
+const esc=x=>x.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const SUG=["What is this project?","Google","TikTok","Which tool is fastest?","Recommended split","Why not all in Google?"];
+const btn=q=>`<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`;
+function add(c,h){const d=document.createElement("div");d.className="m "+c;d.innerHTML=h;msgs.appendChild(d);msgs.classList.add("has");msgs.scrollTop=msgs.scrollHeight;return d}
+function ask(q){q=q.trim();if(!q)return;chips.innerHTML="";add("u",esc(q));const b=add("b",'<span class="dots"><i></i><i></i><i></i></span>');setTimeout(()=>{const r=find(q);if(!r.length)b.innerHTML="<p>I do not have that yet. Try one of these:</p><div class=rel>"+SUG.map(btn).join("")+"</div>";else b.innerHTML=r[0].h+(r.length>1?"<div class=rel>"+r.slice(1,4).map(e=>btn(e.t)).join("")+"</div>":"");msgs.scrollTop=msgs.scrollHeight},550)}
+let timers=[];
+function greet(){timers.forEach(clearTimeout);ci.disabled=true;ci.placeholder="";chips.innerHTML="";heyt.className="";heyt.textContent="Hey KAZI";
+timers=[setTimeout(()=>heyt.classList.add("in"),80),setTimeout(()=>heyt.classList.remove("in"),1800),setTimeout(()=>{heyt.textContent="What do you want to know?";heyt.classList.add("in");ci.disabled=false;ci.placeholder="What do you want to know?";if(!msgs.classList.contains("has"))chips.innerHTML=SUG.map(btn).join("")},2600)]}
+function startChat(){if(msgs.classList.contains("has")){ci.disabled=false;ci.placeholder="What do you want to know?"}else greet()}
+document.getElementById("cf").onsubmit=e=>{e.preventDefault();ask(ci.value);ci.value=""};
+document.getElementById("cf").onclick=()=>{if(!ci.disabled)ci.focus()};
+document.getElementById("ask").addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(b)ask(b.dataset.q)});
+
+</script>
+</body>
+</html>
