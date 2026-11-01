@@ -81,6 +81,8 @@ Use `python` instead of `py` on Mac or Linux. The data is generated with a fixed
 
 ---
 
+py src/app.py                # open the dashboard in your browser
+
 ## 4. The data
 
 ### Data dictionary
